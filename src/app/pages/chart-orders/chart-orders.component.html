@@ -1,0 +1,56 @@
+<div
+  class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+      Doanh thu: {{ currentFilterLabel }}
+    </h3>
+    <div class="relative inline-block">
+      <button class="dropdown-toggle" (click)="toggleDropdown()">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+          class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M3 6C3 5.44772 3.44772 5 4 5H20C20.5523 5 21 5.44772 21 6C21 6.55228 20.5523 7 20 7H4C3.44772 7 3 6.55228 3 6ZM3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H4C3.44772 13 3 12.5523 3 12ZM3 18C3 17.4477 3.44772 17 4 17H20C20.5523 17 21 17.4477 21 18C21 18.5523 20.5523 19 20 19H4C3.44772 19 3 18.5523 3 18Z"
+            fill="currentColor"></path>
+        </svg>
+      </button>
+
+      <app-dropdown [isOpen]="isOpen" (close)="closeDropdown()" className="w-40 p-2">
+        <app-dropdown-item (itemClick)="setFilter('Day')"
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+          Hôm nay (Giờ)
+        </app-dropdown-item>
+        <app-dropdown-item (itemClick)="setFilter('Week')"
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+          Tuần này (Thứ)
+        </app-dropdown-item>
+        <app-dropdown-item (itemClick)="setFilter('Month')"
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+          Tháng này (Ngày)
+        </app-dropdown-item>
+        <app-dropdown-item (itemClick)="setFilter('Year')"
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+          Năm nay (Tháng)
+        </app-dropdown-item>
+      </app-dropdown>
+    </div>
+  </div>
+
+  <div class="max-w-full overflow-x-auto custom-scrollbar">
+    <div class="-ml-5 min-w-[650px] xl:min-w-full pl-2">
+      <apx-chart 
+        [series]="series" 
+        [chart]="chart" 
+        [xaxis]="xaxis" 
+        [plotOptions]="plotOptions" 
+        [dataLabels]="dataLabels"
+        [stroke]="stroke" 
+        [legend]="legend" 
+        [yaxis]="yaxis" 
+        [grid]="grid" 
+        [fill]="fill" 
+        [tooltip]="tooltip"
+        [colors]="colors">
+      </apx-chart>
+    </div>
+  </div>
+</div>

@@ -46,13 +46,15 @@ export class TotalCustomerComponent implements OnInit {
   ngOnInit(): void {
     // 1. Lấy thời gian thực của hệ thống
     const now = new Date();
-    
+
     // 2. Thiết lập hiển thị tháng hiện tại
     this.currentMonthStr = `${now.getMonth() + 1}/${now.getFullYear()}`;
 
     // 3. Tính toán tháng sau để hiển thị label
     const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    this.nextMonthStr = `${nextMonthDate.getMonth() + 1}/${nextMonthDate.getFullYear()}`;
+    this.nextMonthStr = `${
+      nextMonthDate.getMonth() + 1
+    }/${nextMonthDate.getFullYear()}`;
 
     // 4. Bắt đầu tính toán
     this.calculateMetrics();
@@ -66,63 +68,92 @@ export class TotalCustomerComponent implements OnInit {
       next: (result) => {
         const allOrders = result.ordersResponse.data;
 
-        // --- CÁC MỐC THỜI GIAN (Dựa trên thời gian thực) ---
+        // --- CÁC MỐC THỜI GIAN HỆ THỐNG ---
         const now = new Date();
         const currentMonth = now.getMonth(); // 0-11
         const currentYear = now.getFullYear();
 
         const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
-        const nextMonth = nextMonthDate.getMonth(); // 0 (Tháng 1)
-        const nextMonthYear = nextMonthDate.getFullYear(); // 2026 (nếu qua năm)
+        const nextMonth = nextMonthDate.getMonth();
+        const nextMonthYear = nextMonthDate.getFullYear();
 
         // -----------------------------------------------------------
-        // BƯỚC 1: LỌC DANH SÁCH ĐƠN HÀNG HỢP LỆ (Để tính bảo trì)
+        // BƯỚC 1: LỌC DANH SÁCH ĐƠN HÀNG HỢP LỆ
+        // (Chỉ để xác định khách hàng và tính bảo trì)
         // -----------------------------------------------------------
-        const allValidHistoryOrders = allOrders.filter((order: any) => {
-          const hasCore = order.orderDetails.some((detail: any) => {
+
+        // Danh sách đơn hàng chưa hủy (để tính toán lịch sử)
+        const validOrdersForHistory = allOrders.filter(
+          (order: any) => order.statusValue !== "Đã hủy"
+        );
+
+        // -----------------------------------------------------------
+        // BƯỚC 2: TÍNH KPI DOANH SỐ + ĐƠN HÀNG TRONG THÁNG
+        // -----------------------------------------------------------
+
+        // Lấy các đơn hàng thuộc tháng hiện tại
+        const ordersInCurrentMonth = validOrdersForHistory.filter(
+          (order: any) => {
+            const orderDate = new Date(order.modifiedDate); // Dùng modifiedDate
+            return (
+              orderDate.getMonth() === currentMonth &&
+              orderDate.getFullYear() === currentYear
+            );
+          }
+        );
+
+        // Biến tạm để tính tổng
+        let monthlyRevenue = 0;
+        let monthlyOrdersCount = 0;
+        const uniqueCustomerCodes = new Set<string>();
+
+        // Duyệt qua các đơn hàng trong tháng
+        ordersInCurrentMonth.forEach((order: any) => {
+          let orderHasCoreProduct = false; // Cờ đánh dấu đơn có chứa sản phẩm core
+
+          // Duyệt chi tiết sản phẩm trong đơn để cộng tiền
+          order.orderDetails.forEach((detail: any) => {
             const productCode = detail.productCode.toLowerCase().trim();
-            return this.productCores.some(
+
+            // Kiểm tra xem sản phẩm này có trong ProductCore không
+            const isCore = this.productCores.some(
               (core) =>
                 productCode === core.sku.toLowerCase().trim() ||
                 productCode.includes(core.sku.toLowerCase().trim())
             );
+
+            if (isCore) {
+              // CHỈ CỘNG TIỀN NẾU LÀ SẢN PHẨM CORE
+              const itemTotal =
+                detail.price * detail.quantity - (detail.discount || 0);
+              monthlyRevenue += itemTotal;
+              orderHasCoreProduct = true;
+            }
           });
-          return order.statusValue !== 'Đã hủy' && hasCore;
+
+          // Nếu đơn hàng có ít nhất 1 sản phẩm core -> Tính là 1 đơn hàng + 1 khách
+          if (orderHasCoreProduct) {
+            monthlyOrdersCount++;
+
+            const rawCode = order.customerCode || "";
+            const cleanCode = rawCode.split("{")[0].trim();
+            if (cleanCode) uniqueCustomerCodes.add(cleanCode);
+          }
         });
 
-        // -----------------------------------------------------------
-        // BƯỚC 2: TÍNH KPI DOANH SỐ (Chỉ tính trong tháng hiện tại)
-        // -----------------------------------------------------------
-        const ordersInCurrentMonth = allValidHistoryOrders.filter((order: any) => {
-          // SỬ DỤNG MODIFIED DATE (như yêu cầu)
-          const orderDate = new Date(order.modifiedDate); 
-          return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
-        });
-
-        this.totalOrders = ordersInCurrentMonth.length;
-
-        this.totalRevenue = ordersInCurrentMonth.reduce(
-          (sum: number, order: any) => sum + (order.total || 0),
-          0
-        );
-
-        const uniqueCustomerCodes = new Set<string>();
-        ordersInCurrentMonth.forEach((order: any) => {
-          const rawCode = order.customerCode || "";
-          const cleanCode = rawCode.split("{")[0].trim();
-          if (cleanCode) uniqueCustomerCodes.add(cleanCode);
-        });
+        // Gán kết quả KPI
+        this.totalRevenue = monthlyRevenue;
+        this.totalOrders = monthlyOrdersCount;
         this.totalCustomers = uniqueCustomerCodes.size;
 
         // -----------------------------------------------------------
-        // BƯỚC 3: TÍNH SỐ LƯỢNG CẦN BẢO TRÌ (Dựa trên toàn bộ lịch sử)
+        // BƯỚC 3: TÍNH BẢO TRÌ (Dựa trên toàn bộ lịch sử)
         // -----------------------------------------------------------
         let countCurrent = 0;
         let countNext = 0;
 
-        allValidHistoryOrders.forEach((order: any) => {
-          // SỬ DỤNG MODIFIED DATE ĐỂ TÍNH NGÀY MUA
-          const buyDate = new Date(order.modifiedDate);
+        validOrdersForHistory.forEach((order: any) => {
+          const buyDate = new Date(order.modifiedDate); // Ngày mua
           const buyMonth = buyDate.getMonth();
           const buyYear = buyDate.getFullYear();
 
@@ -140,17 +171,17 @@ export class TotalCustomerComponent implements OnInit {
               matchedCore.lifetimes.forEach((lifetimeMonths) => {
                 if (!lifetimeMonths || lifetimeMonths <= 0) return;
 
-                // --- KIỂM TRA THÁNG NÀY ---
-                const diffMonthCurrent = (currentYear - buyYear) * 12 + (currentMonth - buyMonth);
-                
-                if (diffMonthCurrent > 0 && diffMonthCurrent % lifetimeMonths === 0) {
+                // Tính bảo trì tháng này
+                const diffCurrent =
+                  (currentYear - buyYear) * 12 + (currentMonth - buyMonth);
+                if (diffCurrent > 0 && diffCurrent % lifetimeMonths === 0) {
                   countCurrent += quantity;
                 }
 
-                // --- KIỂM TRA THÁNG SAU ---
-                const diffMonthNext = (nextMonthYear - buyYear) * 12 + (nextMonth - buyMonth);
-                
-                if (diffMonthNext > 0 && diffMonthNext % lifetimeMonths === 0) {
+                // Tính bảo trì tháng sau
+                const diffNext =
+                  (nextMonthYear - buyYear) * 12 + (nextMonth - buyMonth);
+                if (diffNext > 0 && diffNext % lifetimeMonths === 0) {
                   countNext += quantity;
                 }
               });
@@ -160,12 +191,6 @@ export class TotalCustomerComponent implements OnInit {
 
         this.maintenanceCurrentMonth = countCurrent;
         this.maintenanceNextMonth = countNext;
-
-        // Log kiểm tra
-        console.log(`--- Báo cáo thực tế Tháng ${this.currentMonthStr} ---`);
-        console.log(`Doanh số: ${this.totalRevenue}, Đơn: ${this.totalOrders}`);
-        console.log(`Thay lõi T${this.currentMonthStr}: ${this.maintenanceCurrentMonth}`);
-        console.log(`Thay lõi T${this.nextMonthStr}: ${this.maintenanceNextMonth}`);
       },
       error: (err) => console.error(err),
     });

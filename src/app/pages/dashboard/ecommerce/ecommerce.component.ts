@@ -6,6 +6,7 @@ import { StatisticsChartComponent } from '../../../shared/components/ecommerce/s
 import { DemographicCardComponent } from '../../../shared/components/ecommerce/demographic-card/demographic-card.component';
 import { RecentOrdersComponent } from '../../../shared/components/ecommerce/recent-orders/recent-orders.component';
 import { TotalCustomerComponent } from '../../total-customer/total-customer.component';
+import { ChartOrdersComponent } from '../../chart-orders/chart-orders.component';
 @Component({
   selector: 'app-ecommerce',
   imports: [
@@ -15,7 +16,8 @@ import { TotalCustomerComponent } from '../../total-customer/total-customer.comp
     StatisticsChartComponent,
     DemographicCardComponent,
     RecentOrdersComponent,
-    TotalCustomerComponent
+    TotalCustomerComponent,
+    ChartOrdersComponent
   ],
   templateUrl: './ecommerce.component.html',
 })

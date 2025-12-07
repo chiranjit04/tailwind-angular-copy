@@ -36,6 +36,9 @@
             <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Tên KH</th>
             <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">SĐT</th>
             <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Khu vực</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Ngày Mua</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">SKU máy</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Chi tiết bảo trì</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
@@ -60,6 +63,20 @@
             </td>
             <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
               {{ item.locationName }}
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              {{ item.modifiedDate | date }}
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              <app-badge variant="light" color="primary" *ngFor="let itemproduct of item.purchasedProducts" style="margin: 3px 0;">
+                 {{ itemproduct.sku }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              <span *ngFor="let itemproduct of item.purchasedProducts">
+               Thay lõi 1: <b>{{ addMonthsISO(item.modifiedDate,itemproduct.coreRules.lifetimes[0]) }}</b>
+               <br>
+              </span>
             </td>
           </tr>
           }

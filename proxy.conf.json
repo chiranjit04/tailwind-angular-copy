@@ -9,9 +9,27 @@
     "target": "https://public.kiotapi.com",
     "secure": true,
     "changeOrigin": true,
-    "logLevel": "debug",
     "pathRewrite": {
       "^/api": ""
-    }
+    },
+    "logLevel": "debug"
+  },
+  "/smax": {
+    "target": "https://api.smax.ai",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/smax": ""
+    },
+    "logLevel": "debug"
+  },
+  "/n8n": {
+    "target": "https://go.n8n.app",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/n8n": ""
+    },
+    "logLevel": "debug"
   }
 }

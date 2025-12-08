@@ -4,11 +4,17 @@ import { FormsModule } from "@angular/forms";
 import { forkJoin } from "rxjs";
 import { ButtonComponent } from "../../shared/components/ui/button/button.component";
 import { BadgeComponent } from "../../shared/components/ui/badge/badge.component";
-import { ProductCore, productCoreData } from "../../shared/components/custom/data-orders/product-core";
-import { Customer, KiotVietService } from "../../shared/services/customer.service";
+import {
+  ProductCore,
+  productCoreData,
+} from "../../shared/components/custom/data-orders/product-core";
+import {
+  Customer,
+  KiotVietService,
+} from "../../shared/services/customer.service";
 
+import { ZaloService } from "../../shared/services/zalo.service";
 // Components UI
-
 
 // Services & Data
 
@@ -22,14 +28,14 @@ export interface MaintenanceTask {
   productName: string;
   sku: string;
   purchaseDate: string;
-  
+
   // Thông tin chi tiết về từng lõi cần thay
   maintenanceDetails: {
-    coreName: string;       // Ví dụ: Lõi 1
-    months: number;         // Tuổi thọ (tháng)
-    dueDate: Date;          // Ngày cần thay (Date object để sort)
-    dueDateStr: string;     // Ngày cần thay (String để hiển thị)
-    status: 'Gấp' | 'Sắp tới' | 'Xa'; // Trạng thái
+    coreName: string; // Ví dụ: Lõi 1
+    months: number; // Tuổi thọ (tháng)
+    dueDate: Date; // Ngày cần thay (Date object để sort)
+    dueDateStr: string; // Ngày cần thay (String để hiển thị)
+    status: "Gấp" | "Sắp tới" | "Xa"; // Trạng thái
     daysRemaining: number;
   }[];
 }
@@ -39,12 +45,11 @@ export interface MaintenanceTask {
   standalone: true,
   imports: [CommonModule, ButtonComponent, FormsModule, BadgeComponent],
   templateUrl: "./cham-soc-khach-hang.component.html",
-  styleUrls: ["./cham-soc-khach-hang.component.css"] // Bạn có thể tạo file css rỗng nếu chưa cần style riêng
+  styleUrls: ["./cham-soc-khach-hang.component.css"], // Bạn có thể tạo file css rỗng nếu chưa cần style riêng
 })
 export class ChamSocKhachHangComponent implements OnInit {
-  
   private productCores: ProductCore[] = productCoreData;
-  
+
   // Dữ liệu hiển thị
   public maintenanceList: MaintenanceTask[] = [];
   public filteredList: MaintenanceTask[] = [];
@@ -54,7 +59,10 @@ export class ChamSocKhachHangComponent implements OnInit {
   public itemsPerPage = 10;
   public searchTerm: string = "";
 
-  constructor(private kiotVietService: KiotVietService) {}
+  constructor(
+    private kiotVietService: KiotVietService,
+    private zaloService: ZaloService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -68,7 +76,7 @@ export class ChamSocKhachHangComponent implements OnInit {
       next: (result) => {
         const customers = result.customersResponse.data;
         const orders = result.ordersResponse.data;
-        
+
         // Map: CustomerCode -> Customer Info
         const customerMap = new Map<string, Customer>();
         customers.forEach((c: Customer) => customerMap.set(c.code, c));
@@ -77,7 +85,7 @@ export class ChamSocKhachHangComponent implements OnInit {
         const now = new Date();
 
         orders.forEach((order: any) => {
-          if (order.statusValue === 'Đã hủy') return;
+          if (order.statusValue === "Đã hủy") return;
 
           const rawCode = order.customerCode || "";
           const cleanCode = rawCode.split("{")[0].trim();
@@ -87,15 +95,16 @@ export class ChamSocKhachHangComponent implements OnInit {
 
           order.orderDetails.forEach((detail: any) => {
             const productCode = detail.productCode.toLowerCase().trim();
-            
+
             // Tìm sản phẩm trong danh sách Core
-            const matchedCore = this.productCores.find(core => 
-              productCode === core.sku.toLowerCase().trim() || 
-              productCode.includes(core.sku.toLowerCase().trim())
+            const matchedCore = this.productCores.find(
+              (core) =>
+                productCode === core.sku.toLowerCase().trim() ||
+                productCode.includes(core.sku.toLowerCase().trim())
             );
 
             if (matchedCore && matchedCore.lifetimes) {
-              const details:any = [];
+              const details: any = [];
               const purchaseDate = new Date(order.modifiedDate);
 
               // Tính toán cho từng lõi
@@ -103,15 +112,15 @@ export class ChamSocKhachHangComponent implements OnInit {
                 if (months > 0) {
                   const dueDate = new Date(purchaseDate);
                   dueDate.setMonth(dueDate.getMonth() + months);
-                  
+
                   // Tính số ngày còn lại
                   const diffTime = dueDate.getTime() - now.getTime();
                   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                   // Xác định trạng thái
-                  let status: 'Gấp' | 'Sắp tới' | 'Xa' = 'Xa';
-                  if (diffDays <= 15) status = 'Gấp'; // Còn 1 tuần hoặc quá hạn
-                  else if (diffDays <= 45) status = 'Sắp tới'; // Còn 1.5 tháng
+                  let status: "Gấp" | "Sắp tới" | "Xa" = "Xa";
+                  if (diffDays <= 15) status = "Gấp"; // Còn 1 tuần hoặc quá hạn
+                  else if (diffDays <= 45) status = "Sắp tới"; // Còn 1.5 tháng
 
                   details.push({
                     coreName: `Lõi số ${index + 1} (${months} tháng)`,
@@ -119,7 +128,7 @@ export class ChamSocKhachHangComponent implements OnInit {
                     dueDate: dueDate,
                     dueDateStr: this.formatDate(dueDate),
                     status: status,
-                    daysRemaining: diffDays
+                    daysRemaining: diffDays,
                   });
                 }
               });
@@ -127,7 +136,9 @@ export class ChamSocKhachHangComponent implements OnInit {
               // Chỉ thêm vào danh sách nếu sản phẩm có lõi cần thay
               if (details.length > 0) {
                 // Sắp xếp các lõi cần thay sớm nhất lên đầu
-                details.sort((a:any, b:any) => a.daysRemaining - b.daysRemaining);
+                details.sort(
+                  (a: any, b: any) => a.daysRemaining - b.daysRemaining
+                );
 
                 tasks.push({
                   customerCode: customer.code,
@@ -138,7 +149,7 @@ export class ChamSocKhachHangComponent implements OnInit {
                   productName: detail.productName,
                   sku: detail.productCode,
                   purchaseDate: order.modifiedDate,
-                  maintenanceDetails: details
+                  maintenanceDetails: details,
                 });
               }
             }
@@ -147,15 +158,19 @@ export class ChamSocKhachHangComponent implements OnInit {
 
         // Sắp xếp danh sách tổng: Khách nào có lõi cần thay sớm nhất thì lên đầu
         tasks.sort((a, b) => {
-          const minDayA = Math.min(...a.maintenanceDetails.map(d => d.daysRemaining));
-          const minDayB = Math.min(...b.maintenanceDetails.map(d => d.daysRemaining));
+          const minDayA = Math.min(
+            ...a.maintenanceDetails.map((d) => d.daysRemaining)
+          );
+          const minDayB = Math.min(
+            ...b.maintenanceDetails.map((d) => d.daysRemaining)
+          );
           return minDayA - minDayB;
         });
 
         this.filteredList = tasks;
         this.maintenanceList = [...this.filteredList];
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error(err),
     });
   }
 
@@ -178,7 +193,9 @@ export class ChamSocKhachHangComponent implements OnInit {
   }
 
   get pagesArray(): number[] {
-    return Array(this.totalPages).fill(0).map((x, i) => i + 1);
+    return Array(this.totalPages)
+      .fill(0)
+      .map((x, i) => i + 1);
   }
 
   goToPage(page: number) {
@@ -202,6 +219,37 @@ export class ChamSocKhachHangComponent implements OnInit {
         item.productName?.toLowerCase().includes(term) ||
         item.sku?.toLowerCase().includes(term)
       );
+    });
+  }
+
+sendZalo(task: any) {
+    if (!task.contactNumber) {
+      alert('Khách hàng này không có số điện thoại!');
+      return;
+    }
+
+    // Hiển thị hộp thoại xác nhận
+    const confirmMsg = `Gửi thông tin bảo trì của khách [${task.customerName}] sang hệ thống xử lý?`;
+    if (!confirm(confirmMsg)) return;
+
+    // GỌI SERVICE MỚI
+    // task chính là object chứa đầy đủ thông tin như JSON bạn yêu cầu
+    this.zaloService.sendMaintenanceData(task).subscribe({
+      next: (res) => {
+        console.log('✅ Gửi n8n thành công:', res);
+        alert('Đã gửi dữ liệu thành công!');
+      },
+      error: (err) => {
+        console.error('❌ Lỗi gửi n8n:', err);
+        
+        // n8n webhook-test thường trả về text "Webhook received", 
+        // Angular mặc định mong đợi JSON nên có thể báo lỗi cú pháp dù gửi thành công.
+        if (err.status === 200) {
+             alert('Đã gửi dữ liệu thành công!');
+        } else {
+             alert('Gửi thất bại. Kiểm tra Console.');
+        }
+      }
     });
   }
 }

@@ -11,7 +11,7 @@ export class ZaloService {
   private readonly PROXY_HOST = 'https://cskh-phg.daoanh08091999.workers.dev/';
   
   // URL n8n gốc
-  private readonly N8N_URL = 'https://go.n8n.app/webhook-test/cskh-phg-2';
+  private readonly N8N_URL = 'https://go.n8n.app/webhook/cskh-phg-2';
 
   constructor(private http: HttpClient) { }
 

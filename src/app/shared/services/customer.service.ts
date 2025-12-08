@@ -32,12 +32,12 @@ export class KiotVietService {
     // Kiểm tra xem có token và còn hạn sử dụng không (trừ hao 10 giây cho chắc chắn)
     const now = Date.now();
     if (session && session.accessToken && session.expiresAt > (now + 10000)) {
-      // console.log('✅ Dùng lại Token từ bộ nhớ (Cache)');
+      // //console.log('✅ Dùng lại Token từ bộ nhớ (Cache)');
       return of(session.accessToken);
     }
 
     // Nếu không có hoặc hết hạn -> Gọi API lấy mới
-    // console.log('🔄 Token hết hạn hoặc không có -> Đang lấy mới...');
+    // //console.log('🔄 Token hết hạn hoặc không có -> Đang lấy mới...');
     return this.requestNewToken();
   }
 

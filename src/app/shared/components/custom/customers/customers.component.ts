@@ -70,7 +70,7 @@ export class CustomersComponent implements OnInit {
 
   // --- HÀM CHÍNH: Tải và Lọc dữ liệu ---
   loadAndFilterData() {
-    // console.log("⏳ Đang tải và xử lý dữ liệu...");
+    // //console.log("⏳ Đang tải và xử lý dữ liệu...");
 
     forkJoin({
       customersResponse: this.kiotVietService.getCustomers(),
@@ -123,7 +123,7 @@ export class CustomersComponent implements OnInit {
           });
         });
 
-        // console.log("🎯 Map sản phẩm khách đã mua:", customerPurchasesMap);
+        // //console.log("🎯 Map sản phẩm khách đã mua:", customerPurchasesMap);
 
         // --- BƯỚC 2: Lọc và Gộp dữ liệu vào dataCustomers ---
 
@@ -146,7 +146,7 @@ export class CustomersComponent implements OnInit {
         this.filteredCustomers = processedList;
         this.dataCustomers = [...this.filteredCustomers];
 
-        // console.log(
+        // //console.log(
         //   `✅ Kết quả cuối cùng: ${this.dataCustomers.length} khách hàng.`,
         //   this.dataCustomers
         // );

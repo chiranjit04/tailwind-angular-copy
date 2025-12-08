@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { BadgeComponent } from "../../shared/components/ui/badge/badge.component";
 import { SafeHtmlPipe } from "../../shared/pipe/safe-html.pipe";
 import { CommonModule } from "@angular/common";
 import { forkJoin } from "rxjs";
@@ -12,7 +11,7 @@ import {
 @Component({
   selector: "app-total-customer",
   standalone: true,
-  imports: [BadgeComponent, SafeHtmlPipe, CommonModule],
+  imports: [SafeHtmlPipe, CommonModule],
   templateUrl: "./total-customer.component.html",
   styleUrl: "./total-customer.component.css",
 })

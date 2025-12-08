@@ -236,7 +236,7 @@ sendZalo(task: any) {
     // task chính là object chứa đầy đủ thông tin như JSON bạn yêu cầu
     this.zaloService.sendMaintenanceData(task).subscribe({
       next: (res) => {
-        console.log('✅ Gửi n8n thành công:', res);
+        // console.log('✅ Gửi n8n thành công:', res);
         alert('Đã gửi dữ liệu thành công!');
       },
       error: (err) => {

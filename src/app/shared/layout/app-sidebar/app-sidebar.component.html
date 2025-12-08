@@ -16,7 +16,7 @@
   (mouseleave)="sidebarService.setHovered(false)"
 >
   <div
-    class="py-8 flex"
+    class="py-4 flex"
     [ngClass]="{
       'xl:justify-center': !((isExpanded$ | async) || (isHovered$ | async)),
       'justify-start': (isExpanded$ | async) || (isHovered$ | async)
@@ -26,20 +26,18 @@
       @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
       <img
         class="dark:hidden"
-        src="/images/logo/logo.svg"
+        src="/images/logo/logo.jpg"
         alt="Logo"
-        width="150"
-        height="40"
+        width="80px"
       />
       <img
         class="hidden dark:block"
-        src="/images/logo/logo-dark.svg"
+        src="/images/logo/logo-dark.jpg"
         alt="Logo"
-        width="150"
-        height="40"
+        width="80px"
       />
       } @else {
-      <img src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
+      <img src="/images/logo/logo-icon.jpg" alt="Logo" width="32px" height="32px" />
       }
     </a>
   </div>

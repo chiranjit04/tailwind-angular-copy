@@ -7,6 +7,7 @@ import { DemographicCardComponent } from '../../../shared/components/ecommerce/d
 import { RecentOrdersComponent } from '../../../shared/components/ecommerce/recent-orders/recent-orders.component';
 import { TotalCustomerComponent } from '../../total-customer/total-customer.component';
 import { ChartOrdersComponent } from '../../chart-orders/chart-orders.component';
+import { ChamSocKhachHangComponent } from '../../cham-soc-khach-hang/cham-soc-khach-hang.component';
 @Component({
   selector: 'app-ecommerce',
   imports: [
@@ -17,7 +18,8 @@ import { ChartOrdersComponent } from '../../chart-orders/chart-orders.component'
     DemographicCardComponent,
     RecentOrdersComponent,
     TotalCustomerComponent,
-    ChartOrdersComponent
+    ChartOrdersComponent,
+    ChamSocKhachHangComponent
   ],
   templateUrl: './ecommerce.component.html',
 })

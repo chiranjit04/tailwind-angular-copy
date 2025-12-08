@@ -6,10 +6,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ZaloService {
-  // Tiền tố Proxy
-  private readonly CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
   
-  // URL n8n
+  // 🔥 Dùng chung Proxy Cloudflare
+  private readonly PROXY_HOST = 'https://cskh-phg.daoanh08091999.workers.dev/';
+  
+  // URL n8n gốc
   private readonly N8N_URL = 'https://go.n8n.app/webhook-test/cskh-phg-2';
 
   constructor(private http: HttpClient) { }
@@ -19,7 +20,8 @@ export class ZaloService {
       'Content-Type': 'application/json'
     });
 
-    // Ghép Proxy + URL n8n
-    return this.http.post(this.CORS_PROXY + this.N8N_URL, data, { headers });
+    // Ghép chuỗi: Proxy + URL n8n
+    // Kết quả sẽ là: https://kiotviet-proxy.../https://go.n8n.app/...
+    return this.http.post(this.PROXY_HOST + this.N8N_URL, data, { headers });
   }
 }

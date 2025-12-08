@@ -110,7 +110,7 @@ export class ChamSocKhachHangComponent implements OnInit {
 
                   // Xác định trạng thái
                   let status: 'Gấp' | 'Sắp tới' | 'Xa' = 'Xa';
-                  if (diffDays <= 7) status = 'Gấp'; // Còn 1 tuần hoặc quá hạn
+                  if (diffDays <= 15) status = 'Gấp'; // Còn 1 tuần hoặc quá hạn
                   else if (diffDays <= 45) status = 'Sắp tới'; // Còn 1.5 tháng
 
                   details.push({

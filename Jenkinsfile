@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/chiranjit04/tailwind-angular-copy'
+                git 'https://github.com/chiranjit04/tailwind-angular-copy.git'
             }
         }
 
